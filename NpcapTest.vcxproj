@@ -155,6 +155,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="NpcapTest.cpp" />
+    <ClCompile Include="protocol_handle.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="protocol_handle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

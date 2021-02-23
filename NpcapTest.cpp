@@ -1,16 +1,6 @@
-﻿
-#include <iostream>
-#include <stdio.h>
-#include <pcap.h>
-#include <time.h>
+﻿#include "protocol_handle.h"
 #define LINE_MAX 16
 
-typedef struct ether_header
-{
-	u_char dest_addr[6];
-	u_char src_addr[6];
-	u_char type[2];
-}mac_header;
 
 int main()
 {
@@ -18,6 +8,7 @@ int main()
 	pcap_if_t *d;
 	pcap_pkthdr *header;
 	pcap_t *fp;
+	protocol_handle* phandle = new protocol_handle();
 	const u_char *pkt_data;
 	int i = 0;
 	int inum;
@@ -70,13 +61,12 @@ int main()
 	printf("适配器开启monitor模式失败！\n");
 	int res;
 	int cnt = 0;
-	while (cnt < 20) {
+	while (cnt < 50) {
 		res = pcap_next_ex(fp, &header, &pkt_data);
 		if (res == 0) {
 			printf("捕获数据包超时\n");
 			continue;
 		}
-		mac_header *mh;
 		int length = sizeof(mac_header);
 		printf("捕获的第%d个数据包(包大小 = %d,捕获大小 = %d)\n",++cnt,header->len,header->caplen);
 		for (int k = 1; k < (header->caplen+1); k++) {
@@ -85,26 +75,8 @@ int main()
 				printf("\n");
 			}
 		}
-
-		//直接用强制类型转换得到以太网帧头
-		mh = (mac_header *)pkt_data;
-		//开始解析以太网帧（瞎写试试）
-		u_char * mac_string;
-		printf("\nMAC帧源地址：\n");
-		mac_string = mh->src_addr;
-		for (int i = 0; i < 6; i++) {
-			printf("%.2x ",mac_string[i]);
-		}
 		printf("\n");
-		mac_string = mh->dest_addr;
-		printf("MAC帧目的地址：\n");
-		for (int i = 0; i < 6; i++) {
-			printf("%.2x ", mac_string[i]);
-		}
-		printf("\n");
-
-
-		printf("\n\n");
+		phandle->mac_packet_handler(NULL, header, pkt_data);
 	}
 	if (res == -1) {
 		printf("捕获数据包出错！！\n");
@@ -113,5 +85,6 @@ int main()
 	}
 
 	pcap_freealldevs(alldevs);
+	delete phandle;
 	return 0;
 }
